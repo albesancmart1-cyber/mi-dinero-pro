@@ -1,0 +1,8 @@
+{
+  "name": "mi-dinero-cron",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
