@@ -8,15 +8,16 @@ import Fijos from './views/Fijos.jsx';
 import Inversiones from './views/inversiones/Inversiones.jsx';
 import Ajustes from './views/Ajustes.jsx';
 import QuickAdd from './views/QuickAdd.jsx';
+import { Icon } from './components/icons.jsx';
 
 // [clave, etiqueta, icono, etiqueta corta para la barra del móvil]
 const NAV = [
-  ['resumen', 'Resumen', '🏠', 'Inicio'],
-  ['movimientos', 'Movimientos', '💸', 'Gastos'],
-  ['presupuestos', 'Presupuestos', '🎯', 'Metas'],
-  ['fijos', 'Fijos', '🔁', 'Fijos'],
-  ['inversiones', 'Inversiones', '📈', 'Cartera'],
-  ['ajustes', 'Ajustes', '⚙️', 'Ajustes'],
+  ['resumen', 'Resumen', <Icon name="resumen" />, 'Resumen'],
+  ['movimientos', 'Movimientos', <Icon name="movimientos" />, 'Movim.'],
+  ['presupuestos', 'Presupuestos', <Icon name="presupuestos" />, 'Presup.'],
+  ['fijos', 'Fijos', <Icon name="fijos" />, 'Fijos'],
+  ['inversiones', 'Inversiones', <Icon name="inversiones" />, 'Cartera'],
+  ['ajustes', 'Ajustes', <Icon name="ajustes" />, 'Ajustes'],
 ];
 
 function initialView() {
@@ -25,7 +26,10 @@ function initialView() {
 }
 
 function Shell() {
-  const { sync } = useStore();
+  const { sync, state } = useStore();
+  const palette = state.settings.palette || 'grafito';
+
+  useEffect(() => { document.documentElement.dataset.palette = palette; }, [palette]);
   const [view, setView] = useState(initialView);
   const [quick, setQuick] = useState(view === 'nuevo');
 
@@ -58,10 +62,10 @@ function Shell() {
           </button>
         ))}
         <div className="sync">
-          {sync.status === 'ok' && '☁️ Sincronizado'}
-          {sync.status === 'syncing' && '☁️ Sincronizando…'}
-          {sync.status === 'error' && <span className="neg">☁️ {sync.message}</span>}
-          {sync.status === 'off' && '💾 Guardado en este dispositivo'}
+          {sync.status === 'ok' && 'Sincronizado'}
+          {sync.status === 'syncing' && 'Sincronizando…'}
+          {sync.status === 'error' && <span className="neg">{sync.message}</span>}
+          {sync.status === 'off' && 'Guardado en este dispositivo'}
           <div style={{ marginTop: 4 }}>Pulsa <b>N</b> para añadir un movimiento</div>
         </div>
       </aside>
@@ -80,7 +84,7 @@ function Shell() {
           </button>
         ))}
       </nav>
-      <button className="fab" onClick={() => setQuick(true)} aria-label="Añadir gasto o ingreso">+</button>
+      <button className="fab" onClick={() => setQuick(true)} aria-label="Añadir gasto o ingreso"><Icon name="plus" strokeWidth={2.2} /></button>
       {quick && <QuickAdd onClose={() => setQuick(false)} />}
     </div>
   );

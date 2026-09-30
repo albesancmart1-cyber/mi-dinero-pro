@@ -81,6 +81,34 @@ function Categories() {
   );
 }
 
+export const PALETTES = [
+  { id: 'grafito', name: 'Grafito', desc: 'Neutro, gris espacial', colors: ['#1d1d1f', '#c9ccd2', '#eeeff1'] },
+  { id: 'marino', name: 'Azul marino', desc: 'Banca clásica', colors: ['#1f3a5f', '#b7c5d8', '#edf0f4'] },
+  { id: 'bosque', name: 'Verde inglés', desc: 'Banca privada', colors: ['#1e4a3a', '#bfd0c4', '#eff1ed'] },
+  { id: 'titanio', name: 'Titanio', desc: 'Cálido, champán y piedra', colors: ['#5c5046', '#d8d1c6', '#f2f0ec'] },
+  { id: 'burdeos', name: 'Burdeos', desc: 'Sobrio y cálido', colors: ['#6b1f30', '#dcc6c9', '#f3f0f0'] },
+];
+
+function Appearance() {
+  const { state, update } = useStore();
+  const current = state.settings.palette || 'grafito';
+  return (
+    <div className="card span2">
+      <div className="card-head"><h2>Apariencia</h2></div>
+      <div className="palettes">
+        {PALETTES.map((p) => (
+          <button key={p.id} className={`palette${current === p.id ? ' on' : ''}`}
+            onClick={() => update((s) => ({ ...s, settings: { ...s.settings, palette: p.id } }))}>
+            <span className="swatches">{p.colors.map((c) => <i key={c} style={{ background: c }} />)}</span>
+            <b>{p.name}</b>
+            <span className="small muted">{p.desc}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Sync() {
   const { pin, setPin, sync, pull } = useStore();
   const [v, setV] = useState(pin);
@@ -130,6 +158,7 @@ export default function Ajustes() {
     <>
       <div className="page-head"><div><h1>Ajustes</h1></div></div>
       <div className="grid g2">
+        <Appearance />
         <div className="card">
           <div className="card-head"><h2>General</h2></div>
           <div className="form-grid">

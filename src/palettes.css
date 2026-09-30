@@ -1,0 +1,75 @@
+/* ==========================================================================
+   Paletas de color (Ajustes → Apariencia). Cada una define el fondo, los
+   orbes que se ven a través del vidrio y el color de acento, en claro y oscuro.
+   El resto del tema (vidrio, tinta, series de gráficos) es común.
+   ========================================================================== */
+
+/* 1 · Grafito — neutro, monocromo, estilo gris espacial */
+:root[data-palette='grafito'] {
+  --bg: #eeeff1;
+  --orb-1: #c9ccd2; --orb-2: #e2e3e6; --orb-3: #b8bcc4; --orb-4: #d9d6d0;
+  --accent: #1d1d1f; --accent-2: #3a3a3c; --accent-ink: #ffffff; --link: #0066cc;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='grafito'] {
+    --bg: #09090a;
+    --orb-1: #2b2d31; --orb-2: #1e1f22; --orb-3: #34373c; --orb-4: #26262a;
+    --accent: #f5f5f7; --accent-2: #d2d2d7; --accent-ink: #1d1d1f; --link: #4aa3ff;
+  }
+}
+
+/* 2 · Azul marino — banca clásica */
+:root[data-palette='marino'] {
+  --bg: #edf0f4;
+  --orb-1: #b7c5d8; --orb-2: #d8dee8; --orb-3: #a4b4ca; --orb-4: #dfe2e8;
+  --accent: #1f3a5f; --accent-2: #2c5282; --accent-ink: #ffffff; --link: #1f5fa8;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='marino'] {
+    --bg: #060a11;
+    --orb-1: #122a4c; --orb-2: #0c1829; --orb-3: #1b355d; --orb-4: #111a28;
+    --accent: #7ea6d8; --accent-2: #5b86bd; --accent-ink: #06101f; --link: #8db4e6;
+  }
+}
+
+/* 3 · Verde inglés — banca privada */
+:root[data-palette='bosque'] {
+  --bg: #eff1ed;
+  --orb-1: #bfd0c4; --orb-2: #e0e4da; --orb-3: #a8c0b1; --orb-4: #e5e0d3;
+  --accent: #1e4a3a; --accent-2: #2b634e; --accent-ink: #ffffff; --link: #1f6b50;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='bosque'] {
+    --bg: #060b09;
+    --orb-1: #0f2b20; --orb-2: #10201a; --orb-3: #19392c; --orb-4: #1a1d16;
+    --accent: #7cc2a2; --accent-2: #5aa585; --accent-ink: #05140e; --link: #8fd0b2;
+  }
+}
+
+/* 4 · Titanio — cálido, champán y piedra */
+:root[data-palette='titanio'] {
+  --bg: #f2f0ec;
+  --orb-1: #d8d1c6; --orb-2: #e8e4dc; --orb-3: #cbc1b2; --orb-4: #e2ddd6;
+  --accent: #5c5046; --accent-2: #7a6a5b; --accent-ink: #ffffff; --link: #7a5a36;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='titanio'] {
+    --bg: #0c0b0a;
+    --orb-1: #2b261f; --orb-2: #211d19; --orb-3: #362e25; --orb-4: #1e1c19;
+    --accent: #cdb899; --accent-2: #b09a7a; --accent-ink: #1a140d; --link: #d8c19f;
+  }
+}
+
+/* 5 · Burdeos — sobrio y cálido */
+:root[data-palette='burdeos'] {
+  --bg: #f3f0f0;
+  --orb-1: #dcc6c9; --orb-2: #ece4e2; --orb-3: #ccb1b6; --orb-4: #e5dfdb;
+  --accent: #6b1f30; --accent-2: #8a3143; --accent-ink: #ffffff; --link: #8a2c40;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='burdeos'] {
+    --bg: #0c0809;
+    --orb-1: #3a1820; --orb-2: #231418; --orb-3: #4a1f2a; --orb-4: #1f1a1b;
+    --accent: #e08a9b; --accent-2: #c46c7e; --accent-ink: #1f070d; --link: #eb9dac;
+  }
+}

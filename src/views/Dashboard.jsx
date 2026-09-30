@@ -28,7 +28,7 @@ export default function Dashboard({ go, onQuickAdd }) {
   return (
     <>
       <div className="page-head">
-        <div><h1>Hola 👋</h1><div className="sub">{monthLabel(month)} · así van tus finanzas</div></div>
+        <div><h1>Resumen</h1><div className="sub">{monthLabel(month)}</div></div>
         <button className="btn primary" onClick={onQuickAdd}>+ Añadir gasto o ingreso</button>
       </div>
 
