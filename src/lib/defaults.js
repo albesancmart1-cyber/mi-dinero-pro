@@ -2,24 +2,59 @@ export const uid = () =>
   Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
 
 export const DEFAULT_CATEGORIES = [
-  { id: 'c-super', name: 'Supermercado', type: 'expense', icon: '🛒' },
-  { id: 'c-rest', name: 'Restaurantes', type: 'expense', icon: '🍽️' },
-  { id: 'c-casa', name: 'Vivienda', type: 'expense', icon: '🏠' },
-  { id: 'c-sumin', name: 'Suministros', type: 'expense', icon: '💡' },
-  { id: 'c-trans', name: 'Transporte', type: 'expense', icon: '🚗' },
-  { id: 'c-ocio', name: 'Ocio', type: 'expense', icon: '🎉' },
-  { id: 'c-ropa', name: 'Ropa', type: 'expense', icon: '👕' },
-  { id: 'c-salud', name: 'Salud', type: 'expense', icon: '💊' },
-  { id: 'c-subs', name: 'Suscripciones', type: 'expense', icon: '🔁' },
-  { id: 'c-viajes', name: 'Viajes', type: 'expense', icon: '✈️' },
-  { id: 'c-regalos', name: 'Regalos', type: 'expense', icon: '🎁' },
-  { id: 'c-formac', name: 'Formación', type: 'expense', icon: '📚' },
-  { id: 'c-otros-g', name: 'Otros gastos', type: 'expense', icon: '📦' },
-  { id: 'c-nomina', name: 'Nómina', type: 'income', icon: '💼' },
-  { id: 'c-extra', name: 'Ingresos extra', type: 'income', icon: '✨' },
-  { id: 'c-divid', name: 'Dividendos', type: 'income', icon: '📈' },
-  { id: 'c-otros-i', name: 'Otros ingresos', type: 'income', icon: '💰' },
+  { id: 'c-super', name: 'Supermercado', type: 'expense', icon: 'cart' },
+  { id: 'c-rest', name: 'Restaurantes', type: 'expense', icon: 'fork' },
+  { id: 'c-casa', name: 'Vivienda', type: 'expense', icon: 'house' },
+  { id: 'c-sumin', name: 'Suministros', type: 'expense', icon: 'bolt' },
+  { id: 'c-telef', name: 'Telefonía e internet', type: 'expense', icon: 'wifi' },
+  { id: 'c-trans', name: 'Transporte', type: 'expense', icon: 'car' },
+  { id: 'c-combust', name: 'Combustible', type: 'expense', icon: 'fuel' },
+  { id: 'c-ropa', name: 'Ropa y calzado', type: 'expense', icon: 'tshirt' },
+  { id: 'c-hogar', name: 'Hogar', type: 'expense', icon: 'sofa' },
+  { id: 'c-tecno', name: 'Tecnología y compras online', type: 'expense', icon: 'laptop' },
+  { id: 'c-ocio', name: 'Ocio', type: 'expense', icon: 'ticket' },
+  { id: 'c-subs', name: 'Suscripciones', type: 'expense', icon: 'repeat' },
+  { id: 'c-salud', name: 'Salud', type: 'expense', icon: 'health' },
+  { id: 'c-belleza', name: 'Belleza y cuidado', type: 'expense', icon: 'drop' },
+  { id: 'c-deporte', name: 'Deporte', type: 'expense', icon: 'dumbbell' },
+  { id: 'c-viajes', name: 'Viajes', type: 'expense', icon: 'airplane' },
+  { id: 'c-seguros', name: 'Seguros', type: 'expense', icon: 'shield' },
+  { id: 'c-regalos', name: 'Regalos', type: 'expense', icon: 'gift' },
+  { id: 'c-formac', name: 'Formación', type: 'expense', icon: 'book' },
+  { id: 'c-mascotas', name: 'Mascotas', type: 'expense', icon: 'paw' },
+  { id: 'c-bancos', name: 'Bancos y comisiones', type: 'expense', icon: 'bank' },
+  { id: 'c-impuestos', name: 'Impuestos', type: 'expense', icon: 'doc' },
+  { id: 'c-otros-g', name: 'Otros gastos', type: 'expense', icon: 'box' },
+  { id: 'c-nomina', name: 'Nómina', type: 'income', icon: 'briefcase' },
+  { id: 'c-extra', name: 'Ingresos extra', type: 'income', icon: 'sparkles' },
+  { id: 'c-divid', name: 'Dividendos', type: 'income', icon: 'chart' },
+  { id: 'c-otros-i', name: 'Otros ingresos', type: 'income', icon: 'banknote' },
 ];
+
+/**
+ * Pone al día las categorías guardadas: añade las nuevas categorías
+ * predeterminadas y cambia los antiguos emojis por los iconos de línea.
+ */
+export function upgradeCategories(cats) {
+  if (!cats?.length) return DEFAULT_CATEGORIES;
+  const byId = Object.fromEntries(DEFAULT_CATEGORIES.map((c) => [c.id, c]));
+  const out = cats.map((c) => {
+    const d = byId[c.id];
+    if (d && !/^[a-z]+$/.test(c.icon || '')) return { ...c, icon: d.icon };
+    return c;
+  });
+  const have = new Set(out.map((c) => c.id));
+  // Las nuevas se insertan tras las de su mismo tipo
+  for (const d of DEFAULT_CATEGORIES) {
+    if (have.has(d.id)) continue;
+    const lastSame = out.map((c) => c.type).lastIndexOf(d.type);
+    const otros = out.findIndex((c) => c.id === (d.type === 'expense' ? 'c-otros-g' : 'c-otros-i'));
+    const at = otros >= 0 ? otros : lastSame + 1;
+    out.splice(at, 0, d);
+    have.add(d.id);
+  }
+  return out;
+}
 
 export function defaultState() {
   return {
@@ -31,6 +66,7 @@ export function defaultState() {
       rules: {},
     },
     categories: DEFAULT_CATEGORIES,
+    categoriesVersion: 2,
     transactions: [],
     budgets: {},
     budgetTemplate: {},

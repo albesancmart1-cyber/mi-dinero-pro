@@ -80,6 +80,7 @@ export function materializeRecurring(recurring, today, makeId) {
         categoryId: r.categoryId,
         note: r.name,
         recurringId: r.id,
+        ...(r.merchant ? { merchant: r.merchant } : {}),
       });
       next = nextOccurrence(next, r.frequency, anchor);
       guard++;

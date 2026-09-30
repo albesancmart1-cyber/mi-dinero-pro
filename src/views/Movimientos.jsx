@@ -4,6 +4,8 @@ import { monthOf, monthTotals, shiftMonth, todayISO } from '../lib/finance.js';
 import { dateLabel, money, monthLabel } from '../lib/format.js';
 import { Empty, Seg, Stat } from '../components/ui.jsx';
 import QuickAdd from './QuickAdd.jsx';
+import { TxAvatar } from '../components/icons.jsx';
+import { merchantOf } from '../lib/merchants.js';
 
 export function MonthPicker({ month, setMonth }) {
   return (
@@ -18,7 +20,7 @@ export function MonthPicker({ month, setMonth }) {
 export function TxItem({ t, cat, cur, onClick }) {
   return (
     <div className="list-item" style={{ cursor: onClick ? 'pointer' : undefined }} onClick={onClick}>
-      <div className="ico">{cat?.icon || '•'}</div>
+      <TxAvatar item={t} cat={cat} />
       <div className="main">
         <div className="title">{t.note || cat?.name || 'Sin concepto'}</div>
         <div className="meta">{cat?.name}{t.recurringId ? ' · fijo' : ''}</div>
@@ -46,7 +48,7 @@ export default function Movimientos() {
       .filter((t) => monthOf(t.date) === month)
       .filter((t) => filter === 'all' || t.type === filter)
       .filter((t) => !cat || t.categoryId === cat)
-      .filter((t) => !ql || (t.note || '').toLowerCase().includes(ql) || (catById[t.categoryId]?.name || '').toLowerCase().includes(ql))
+      .filter((t) => !ql || (t.note || '').toLowerCase().includes(ql) || (catById[t.categoryId]?.name || '').toLowerCase().includes(ql) || (merchantOf(t)?.name || '').toLowerCase().includes(ql))
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
   }, [state.transactions, month, filter, cat, q, catById]);
 
@@ -89,7 +91,7 @@ export default function Movimientos() {
           ]} />
           <select className="input" style={{ width: 180 }} value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="">Todas las categorías</option>
-            {state.categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+            {state.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <input className="input" style={{ width: 180 }} placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
           <span className="spacer" />

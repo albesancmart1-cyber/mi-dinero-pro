@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { defaultState, uid } from './defaults.js';
+import { defaultState, uid, upgradeCategories } from './defaults.js';
 import { materializeRecurring, todayISO } from './finance.js';
 
 const KEY = 'mi-dinero-pro:v1';
@@ -18,7 +18,9 @@ function migrate(s) {
     ...d,
     ...s,
     settings: { ...d.settings, ...(s?.settings || {}), rules: { ...(s?.settings?.rules || {}) } },
-    categories: s?.categories?.length ? s.categories : d.categories,
+    // Versión 2: nuevas categorías e iconos de línea (solo una vez, para respetar borrados)
+    categories: s?.categories?.length ? ((s.categoriesVersion || 1) < 2 ? upgradeCategories(s.categories) : s.categories) : d.categories,
+    categoriesVersion: 2,
   };
 }
 

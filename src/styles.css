@@ -435,7 +435,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 }
 
 .suggest { position: relative; }
-.suggest-list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; border-radius: 18px; max-height: 280px; overflow-y: auto; padding: 4px; }
+.suggest-list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; border-radius: 18px; max-height: 280px; overflow-y: auto; padding: 4px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent) !important; -webkit-backdrop-filter: var(--blur-strong); backdrop-filter: var(--blur-strong); }
 .suggest-list button { display: flex; width: 100%; gap: 8px; justify-content: space-between; padding: 9px 12px; border: 0; background: none; cursor: pointer; text-align: left; border-radius: 12px; }
 .suggest-list button:hover { background: var(--hover); }
 
@@ -509,3 +510,45 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .palette .swatches { display: flex; margin-bottom: 8px; }
 .palette .swatches i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--glass-strong); margin-right: -6px; }
 @media (max-width: 760px) { .palettes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---------- Logos de marcas e iconos de categoría ---------- */
+.logo, .cat-ico, .monogram {
+  flex: none; display: inline-grid; place-items: center; overflow: hidden; border-radius: 28%;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.logo { background: #fff; }
+.logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat-ico {
+  --c: var(--muted);
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, var(--glass-strong));
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.monogram {
+  font-weight: 600; letter-spacing: -0.02em; color: var(--ink-2);
+  background: linear-gradient(160deg, var(--glass-strong), var(--surface-2));
+}
+@media (prefers-color-scheme: dark) {
+  .logo { box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.18); }
+  .cat-ico { background: color-mix(in srgb, var(--c) 22%, transparent); }
+}
+.asset-cell { display: flex; align-items: center; gap: 10px; }
+.amount-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.amount-row .amount-input { width: auto; flex: 1; min-width: 0; }
+.chip.chip-logo { padding-left: 5px; }
+.chip.on .cat-ico { background: rgba(255, 255, 255, 0.9); }
+.suggest-list button.on { background: var(--hover); }
+.suggest-list .row { gap: 10px; }
+
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.cat-edit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cat-edit .input { flex: 1; min-width: 0; padding: 7px 10px; }
+.icon-picker {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; width: 100%;
+  padding: 10px; margin-top: 6px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--glass-border);
+}
+.icon-picker button { border: 0; background: none; padding: 3px; border-radius: 10px; cursor: pointer; display: grid; place-items: center; }
+.icon-picker button:hover { background: var(--hover); }
+.icon-picker button.on { box-shadow: 0 0 0 2px var(--accent); }
+.cat-edit:has(.icon-picker) { grid-column: 1 / -1; }
+.cat-edit:has(.icon-picker) .input { max-width: 320px; }

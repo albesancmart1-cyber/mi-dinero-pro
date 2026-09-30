@@ -3,6 +3,7 @@ import { useStore } from '../lib/store.jsx';
 import { defaultState, uid } from '../lib/defaults.js';
 import { money, parseAmount } from '../lib/format.js';
 import { Field } from '../components/ui.jsx';
+import { CATEGORY_GLYPHS, CategoryIcon } from '../components/icons.jsx';
 
 function Accounts() {
   const { state, update } = useStore();
@@ -38,28 +39,43 @@ function Accounts() {
   );
 }
 
+function IconPicker({ value, onPick }) {
+  return (
+    <div className="icon-picker">
+      {Object.keys(CATEGORY_GLYPHS).map((g) => (
+        <button type="button" key={g} className={value === g ? 'on' : ''} onClick={() => onPick(g)} aria-label={g}>
+          <CategoryIcon cat={{ icon: g }} size={30} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Categories() {
   const { state, update } = useStore();
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState('🏷️');
+  const [icon, setIcon] = useState('box');
   const [type, setType] = useState('expense');
+  const [picking, setPicking] = useState(null); // id de la categoría cuyo icono se elige, o 'new'
   const used = new Set(state.transactions.map((t) => t.categoryId).concat(state.recurring.map((r) => r.categoryId)));
   const setCat = (id, patch) => update((s) => ({ ...s, categories: s.categories.map((c) => (c.id === id ? { ...c, ...patch } : c)) }));
   return (
-    <div className="card">
-      <div className="card-head"><h2>Categorías</h2></div>
+    <div className="card span2">
+      <div className="card-head"><h2>Categorías</h2><span className="small muted">Toca un icono para cambiarlo</span></div>
       {['expense', 'income'].map((tp) => (
-        <div key={tp} style={{ marginBottom: 12 }}>
-          <h3 style={{ marginBottom: 6 }}>{tp === 'expense' ? 'Gastos' : 'Ingresos'}</h3>
-          <div className="chips">
+        <div key={tp} style={{ marginBottom: 14 }}>
+          <h3 style={{ marginBottom: 8 }}>{tp === 'expense' ? 'Gastos' : 'Ingresos'}</h3>
+          <div className="cat-grid">
             {state.categories.filter((c) => c.type === tp).map((c) => (
-              <span key={c.id} className="chip">
-                <span>{c.icon}</span>
-                <input value={c.name} onChange={(e) => setCat(c.id, { name: e.target.value })}
-                  style={{ border: 0, background: 'none', width: `${Math.max(4, c.name.length)}ch`, padding: 0 }} />
-                {!used.has(c.id) && <button className="icon-btn" style={{ padding: 0 }} aria-label="Eliminar"
+              <div key={c.id} className="cat-edit">
+                <button type="button" className="icon-btn" style={{ padding: 0 }} onClick={() => setPicking(picking === c.id ? null : c.id)} aria-label="Cambiar icono">
+                  <CategoryIcon cat={c} size={32} />
+                </button>
+                <input className="input" value={c.name} onChange={(e) => setCat(c.id, { name: e.target.value })} />
+                {!used.has(c.id) && <button className="icon-btn" aria-label="Eliminar"
                   onClick={() => update((s) => ({ ...s, categories: s.categories.filter((x) => x.id !== c.id) }))}>✕</button>}
-              </span>
+                {picking === c.id && <IconPicker value={c.icon} onPick={(g) => { setCat(c.id, { icon: g }); setPicking(null); }} />}
+              </div>
             ))}
           </div>
         </div>
@@ -70,13 +86,16 @@ function Categories() {
         update((s) => ({ ...s, categories: [...s.categories, { id: `c-${uid()}`, name: name.trim(), icon, type }] }));
         setName('');
       }}>
-        <input className="input" style={{ width: 60 }} value={icon} onChange={(e) => setIcon(e.target.value)} aria-label="Icono" />
-        <input className="input" style={{ width: 180 }} placeholder="Nueva categoría" value={name} onChange={(e) => setName(e.target.value)} />
+        <button type="button" className="icon-btn" style={{ padding: 0 }} onClick={() => setPicking(picking === 'new' ? null : 'new')} aria-label="Icono de la nueva categoría">
+          <CategoryIcon cat={{ icon }} size={36} />
+        </button>
+        <input className="input" style={{ width: 200 }} placeholder="Nueva categoría" value={name} onChange={(e) => setName(e.target.value)} />
         <select className="input" style={{ width: 120 }} value={type} onChange={(e) => setType(e.target.value)}>
           <option value="expense">Gasto</option><option value="income">Ingreso</option>
         </select>
         <button className="btn">Añadir</button>
       </form>
+      {picking === 'new' && <IconPicker value={icon} onPick={(g) => { setIcon(g); setPicking(null); }} />}
     </div>
   );
 }

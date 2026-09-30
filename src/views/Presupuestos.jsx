@@ -4,6 +4,7 @@ import { budgetFor, budgetStatus, monthOf, monthlyEquivalent, shiftMonth, todayI
 import { money, parseAmount } from '../lib/format.js';
 import { Empty, Progress, Stat } from '../components/ui.jsx';
 import { MonthPicker } from './Movimientos.jsx';
+import { CategoryIcon } from '../components/icons.jsx';
 
 export default function Presupuestos() {
   const { state, update } = useStore();
@@ -93,7 +94,7 @@ export default function Presupuestos() {
             {st.rows.map((r) => (
               <div key={r.category.id}>
                 <div className="row" style={{ marginBottom: 6 }}>
-                  <span>{r.category.icon}</span>
+                  <CategoryIcon cat={r.category} size={30} />
                   <span style={{ fontWeight: 560 }}>{r.category.name}</span>
                   <span className="spacer" />
                   <span className="tnum small">
@@ -121,7 +122,7 @@ export default function Presupuestos() {
           <div className="form-grid">
             {expenseCats.map((c) => (
               <label className="field" key={c.id}>
-                {c.icon} {c.name}
+                <span className="row"><CategoryIcon cat={c} size={22} />{c.name}</span>
                 <input className="input" inputMode="decimal" placeholder="0" value={draft[c.id] || ''}
                   onChange={(e) => setDraft({ ...draft, [c.id]: e.target.value })} />
               </label>

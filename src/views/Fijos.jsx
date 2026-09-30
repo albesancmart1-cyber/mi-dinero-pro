@@ -4,6 +4,9 @@ import { uid } from '../lib/defaults.js';
 import { FREQUENCIES, monthlyEquivalent, subscriptionAlerts, todayISO } from '../lib/finance.js';
 import { dateLabel, money, parseAmount } from '../lib/format.js';
 import { Empty, Field, Modal, Seg, Stat } from '../components/ui.jsx';
+import { TxAvatar } from '../components/icons.jsx';
+import { MerchantInput } from './QuickAdd.jsx';
+import { matchMerchant } from '../lib/merchants.js';
 
 function RecurringForm({ item, onClose, preset }) {
   const { state, update } = useStore();
@@ -54,7 +57,18 @@ function RecurringForm({ item, onClose, preset }) {
           { value: 'expense', label: 'Gasto', className: 'expense' }, { value: 'income', label: 'Ingreso', className: 'income' },
         ]} />
         <div className="form-grid">
-          <Field label="Nombre" full><input className="input" autoFocus value={f.name} onChange={set('name')} placeholder={f.isSubscription ? 'Netflix, Spotify…' : f.type === 'income' ? 'Nómina' : 'Alquiler, luz…'} /></Field>
+          <Field label="Nombre" full>
+            <MerchantInput value={f.name} autoFocus categories={state.categories}
+              placeholder={f.isSubscription ? 'Netflix, Spotify…' : f.type === 'income' ? 'Nómina' : 'Alquiler, Iberdrola, Movistar…'}
+              onChange={(v) => {
+                const m = matchMerchant(v);
+                setF((p) => ({ ...p, name: v, merchant: null, ...(m && p.type === 'expense' && !item ? { categoryId: m.category, isSubscription: p.isSubscription || m.category === 'c-subs' } : {}) }));
+              }}
+              onPick={(m) => setF((p) => ({
+                ...p, name: m.name, merchant: m.id,
+                ...(p.type === 'expense' ? { categoryId: m.category, isSubscription: p.isSubscription || m.category === 'c-subs' } : {}),
+              }))} />
+          </Field>
           <Field label="Importe"><input className="input" inputMode="decimal" value={f.amount} onChange={set('amount')} placeholder="0,00" /></Field>
           <Field label="Frecuencia">
             <select className="input" value={f.frequency} onChange={set('frequency')}>
@@ -63,7 +77,7 @@ function RecurringForm({ item, onClose, preset }) {
           </Field>
           <Field label="Categoría">
             <select className="input" value={catId} onChange={set('categoryId')}>
-              {cats.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+              {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </Field>
           <Field label="Próximo cargo / cobro"><input type="date" className="input" value={f.nextDate} onChange={set('nextDate')} /></Field>
@@ -87,7 +101,7 @@ function RecurringForm({ item, onClose, preset }) {
 function RecRow({ r, cat, cur, onEdit, onCancel }) {
   return (
     <div className="list-item">
-      <div className="ico">{cat?.icon || '🔁'}</div>
+      <TxAvatar item={r} cat={cat} />
       <div className="main" style={{ cursor: 'pointer' }} onClick={onEdit}>
         <div className="title">{r.name} {!r.active && <span className="badge">Cancelada</span>}</div>
         <div className="meta">

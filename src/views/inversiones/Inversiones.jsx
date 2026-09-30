@@ -8,6 +8,7 @@ import { Donut, LineChart, SERIES } from '../../components/charts.jsx';
 import { Empty, Field, Modal, Stat } from '../../components/ui.jsx';
 import { PositionForm, TradeForm } from './PositionForm.jsx';
 import ImportExcel from './ImportExcel.jsx';
+import { AssetLogo } from '../../components/icons.jsx';
 
 const TYPE_COLOR = Object.fromEntries(ASSET_TYPES.map((t, i) => [t, SERIES[i]]));
 
@@ -79,10 +80,12 @@ function Cartera({ onEditAsset }) {
                 {pf.assets.map((a) => (
                   <tr key={a.key}>
                     <td className="click" style={{ cursor: 'pointer' }} onClick={() => onEditAsset(a.positions[0])}>
+                      <div className="asset-cell"><AssetLogo symbol={a.symbol} name={a.name} /><div>
                       <div className="name">{a.name}</div>
                       <div className="sym">{a.symbol || 'manual'}{a.price != null && ` · ${num(a.price, 2)} ${a.quoteCurrency}`}
                         {a.quote?.changePct != null && <span className={tone(a.quote.changePct)}> {pct(a.quote.changePct, 2, true)}</span>}
                       </div>
+                      </div></div>
                     </td>
                     <td><span className="badge"><i style={{ width: 8, height: 8, borderRadius: 2, background: TYPE_COLOR[a.type] }} />{a.type}</span></td>
                     <td className="num">{money(a.invested, cur)}</td>
@@ -212,7 +215,7 @@ function Posiciones({ onEdit, onTrade }) {
                   <tbody>
                     {rows.map((r) => (
                       <tr key={r.id} className="click" onClick={() => onEdit(r)}>
-                        <td><div className="name">{r.name}</div><div className="sym">{r.symbol || 'manual'} · {r.type}</div></td>
+                        <td><div className="asset-cell"><AssetLogo symbol={r.symbol} name={r.name} /><div><div className="name">{r.name}</div><div className="sym">{r.symbol || 'manual'} · {r.type}</div></div></div></td>
                         <td className="num">{r.market ? num(r.qty, 6) : '—'}</td>
                         <td className="num">{r.market ? `${num(r.avgPrice, 2)} ${r.quoteCurrency}` : '—'}</td>
                         <td className="num">{r.price != null ? `${num(r.price, 2)} ${r.quoteCurrency}` : r.market ? <span className="muted">—</span> : 'manual'}</td>
@@ -404,7 +407,7 @@ function Seguimiento() {
             <tbody>
               {[...rows].sort((a, b) => (b.expectedCagr ?? -9) - (a.expectedCagr ?? -9)).map((a) => (
                 <tr key={a.key}>
-                  <td><div className="name">{a.name}</div><div className="sym">{a.symbol}</div></td>
+                  <td><div className="asset-cell"><AssetLogo symbol={a.symbol} name={a.name} /><div><div className="name">{a.name}</div><div className="sym">{a.symbol}</div></div></div></td>
                   <td className="num">{num(a.price, 2)} {a.quoteCurrency}</td>
                   <td className="num">
                     <input className="cell" inputMode="decimal" key={`${a.key}-${a.target5y}`} defaultValue={a.target5y != null ? num(a.target5y, 2) : ''}

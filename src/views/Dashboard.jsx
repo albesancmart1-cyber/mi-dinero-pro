@@ -6,6 +6,7 @@ import { dateLabel, money, monthLabel, pct, signedMoney, tone } from '../lib/for
 import { GroupedBars } from '../components/charts.jsx';
 import { Empty, Progress, Stat } from '../components/ui.jsx';
 import { TxItem } from './Movimientos.jsx';
+import { CategoryIcon, TxAvatar } from '../components/icons.jsx';
 
 export default function Dashboard({ go, onQuickAdd }) {
   const { state } = useStore();
@@ -87,7 +88,7 @@ export default function Dashboard({ go, onQuickAdd }) {
               {topCats.map((r) => (
                 <div key={r.category.id}>
                   <div className="row small" style={{ marginBottom: 4 }}>
-                    <span>{r.category.icon} {r.category.name}</span><span className="spacer" />
+                    <span className="row"><CategoryIcon cat={r.category} size={22} />{r.category.name}</span><span className="spacer" />
                     <span className="tnum"><b>{money(r.spent, cur, 0)}</b>{r.limit > 0 && <span className="muted"> / {money(r.limit, cur, 0)}</span>}</span>
                   </div>
                   <Progress ratio={r.limit > 0 ? r.ratio : 0} />
@@ -103,7 +104,7 @@ export default function Dashboard({ go, onQuickAdd }) {
             <div className="list">
               {next.slice(0, 6).map((r) => (
                 <div className="list-item" key={`${r.id}-${r.date}`}>
-                  <div className="ico">{catById[r.categoryId]?.icon || '🔁'}</div>
+                  <TxAvatar item={r} cat={catById[r.categoryId]} />
                   <div className="main"><div className="title">{r.name}</div><div className="meta">{dateLabel(r.date)}</div></div>
                   <div className={`amt ${r.type === 'income' ? 'pos' : ''}`}>{r.type === 'income' ? '+' : '−'}{money(r.amount, cur)}</div>
                 </div>

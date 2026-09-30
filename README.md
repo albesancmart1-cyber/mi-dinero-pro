@@ -15,6 +15,12 @@ Web app (React + Vite) desplegada en Vercel, usable desde el móvil (se puede "a
 | **Inversiones** | Réplica del Excel `CARTERA.xlsx` con cotizaciones en tiempo real (ver abajo). |
 | **Ajustes** | Divisa principal, cuentas bancarias, categorías, sincronización en la nube, copia de seguridad JSON. |
 
+### Logos de comercios y categorías
+
+- `src/lib/merchants.js` tiene un catálogo de ~410 comercios y marcas habituales en España (supermercados, textil, restauración, gasolineras, telefonía, energía, suscripciones, bancos, seguros…) con su web y su categoría. Al escribir un concepto se sugieren con su logo y se asigna la categoría automáticamente; también se reconocen textos de extracto bancario ("COMPRA TARJ. MERCADONA S.A.").
+- Los logos se sirven desde `/api/logo?d=dominio` (icono de la propia web o favicon grande), cacheados 30 días en Vercel. Si una marca no tiene logo, se muestra el icono de su categoría.
+- Cada categoría tiene un icono de línea con su color; en Ajustes se puede cambiar. Las empresas de la cartera muestran también su logo.
+
 ### Inversiones (réplica del Excel)
 
 - **Posiciones** (hojas *Broker1…5*): brokers con su divisa; por posición nº de acciones, precio medio (en divisa de cotización), tipo (Pilares, Large Caps, Micro/Small/Mid Caps, ETFs, Fondos, Bonos, Efectivo, Otros), % deseado, precio objetivo a 5 años y beta. Sin ticker = activo manual (total invertido + valor actual). Botón **Operar** para registrar compras/ventas y recalcular el precio medio.
