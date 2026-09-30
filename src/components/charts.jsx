@@ -133,7 +133,7 @@ export function LineChart({ data, series, height = 220, format = (v) => v, xLabe
           <g>
             <line x1={xs(hi)} x2={xs(hi)} y1={T} y2={H - B} stroke="var(--axis)" />
             {series.map((s) => hp[s.key] != null && (
-              <circle key={s.key} cx={xs(hi)} cy={ys(hp[s.key])} r={4.5} fill={s.color} stroke="var(--surface)" strokeWidth={2} />
+              <circle key={s.key} cx={xs(hi)} cy={ys(hp[s.key])} r={4.5} fill={s.color} stroke="var(--ring)" strokeWidth={2} />
             ))}
           </g>
         )}
@@ -185,7 +185,7 @@ export function GroupedBars({ data, series, height = 200, format = (v) => v, xLa
           const x0 = cx - (barW * series.length + 2 * (series.length - 1)) / 2;
           return (
             <g key={d.x} onMouseEnter={() => setHi(i)}>
-              <rect x={L + bw * i} y={T} width={bw} height={H - T - B} fill={hi === i ? 'var(--surface-2)' : 'transparent'} />
+              <rect x={L + bw * i} y={T} width={bw} height={H - T - B} fill={hi === i ? 'var(--hover)' : 'transparent'} />
               {series.map((s, j) => {
                 const v = d[s.key] || 0;
                 const y = ys(v);
