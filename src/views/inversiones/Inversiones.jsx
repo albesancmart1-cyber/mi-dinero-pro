@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../../lib/store.jsx';
 import { useMarket } from '../../lib/market.jsx';
-import { ASSET_TYPES, analyzePortfolio, weightsByType } from '../../lib/portfolio.js';
+import { ASSET_TYPES, analyzePortfolio, compositionSlices, weightsByType } from '../../lib/portfolio.js';
 import { excelSeed, uid } from '../../lib/defaults.js';
 import { money, num, parseAmount, pct, signedMoney, tone, dateLabel } from '../../lib/format.js';
 import { Donut, LineChart, SERIES } from '../../components/charts.jsx';
@@ -31,6 +31,9 @@ function Cartera({ onEditAsset }) {
   const cur = state.settings.currency;
   const [editTarget, setEditTarget] = useState(false);
   const types = weightsByType(pf);
+  const comp = compositionSlices(pf);
+  const sliceColor = (e) => (e.slot ? SERIES[e.slot - 1] : 'var(--muted)');
+  const fmtPct = (v) => pct(v, 1);
 
   const history = useMemo(() => {
     const m = new Map();
@@ -123,6 +126,33 @@ function Cartera({ onEditAsset }) {
           <b>Comprar / (vender)</b>: lo que falta para llegar al % deseado con el valor actual de la cartera.
           <b> OBJETIVO</b>: lo mismo pero sobre el importe objetivo ({money(state.settings.targetAmount, cur, 0)}).
         </p>
+      </div>
+
+      <div className="grid g2" style={{ marginBottom: 16 }}>
+        <div className="card">
+          <div className="card-head"><h2>Composición actual</h2><span className="small muted">peso sobre {money(pf.totalValue, cur, 0)}</span></div>
+          {comp.current.length ? (
+            <Donut items={comp.current.map((e) => ({ label: e.label, value: e.current, color: sliceColor(e) }))}
+              center={['Actual', money(pf.totalValue, cur, 0)]} format={fmtPct} />
+          ) : <Empty>Sin posiciones</Empty>}
+        </div>
+        <div className="card">
+          <div className="card-head"><h2>Composición deseada</h2><span className="small muted">según tus % deseados</span></div>
+          {comp.target.length ? (
+            <>
+              <Donut items={comp.target.map((e) => ({ label: e.label, value: e.target, color: sliceColor(e) }))}
+                center={['Deseada', state.settings.targetAmount > 0 ? money(state.settings.targetAmount, cur, 0) : '']} format={fmtPct} />
+              {Math.abs(comp.targetSum - 1) > 0.001 && (
+                <p className="small neg" style={{ marginBottom: 0 }}>Tus % deseados suman {pct(comp.targetSum, 1)}: el gráfico los reparte sobre ese total.</p>
+              )}
+              {comp.deviations[0] && Math.abs(comp.deviations[0].diff) >= 0.005 && (
+                <p className="small muted" style={{ marginBottom: 0 }}>
+                  Mayores desviaciones: {comp.deviations.slice(0, 3).filter((d) => Math.abs(d.diff) >= 0.005).map((d) => `${d.label} ${d.diff > 0 ? '+' : '−'}${pct(Math.abs(d.diff), 1)}`).join(' · ')}
+                </p>
+              )}
+            </>
+          ) : <Empty>Indica el % deseado de cada posición en la tabla de arriba para ver cómo quedaría tu cartera.</Empty>}
+        </div>
       </div>
 
       <div className="grid g2">

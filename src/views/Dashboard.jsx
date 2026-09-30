@@ -53,7 +53,7 @@ export default function Dashboard({ go, onQuickAdd }) {
         <Stat label="Gastos del mes" value={money(t.expense, cur)}
           delta={bs.totalLimit > 0 ? `${pct(t.expense / bs.totalLimit, 0)} del presupuesto` : null} />
         <Stat label="Ahorro del mes" value={money(t.balance, cur)} deltaClass={tone(t.balance)}
-          delta={t.income > 0 ? `Tasa de ahorro ${pct(t.balance / t.income, 0)}` : null} />
+          delta={t.income > 0 ? `Tasa de ahorro ${pct(t.balance / t.income, 0)}${t.investment > 0 ? ` · invertido ${money(t.investment, cur, 0)}` : ''}` : null} />
         <div className="card stat" style={{ cursor: 'pointer' }} onClick={() => go('inversiones')}>
           <div className="label">Cartera de inversión</div>
           <div className="value tnum">{money(pf.totalValue, cur)}</div>
@@ -63,9 +63,13 @@ export default function Dashboard({ go, onQuickAdd }) {
 
       <div className="grid g3">
         <div className="card span2">
-          <div className="card-head"><h2>Ingresos y gastos</h2><span className="small muted">últimos 6 meses</span></div>
-          <GroupedBars data={series.map((s) => ({ x: s.month, income: s.income, expense: s.expense }))}
-            series={[{ key: 'income', label: 'Ingresos', color: 'var(--s3)' }, { key: 'expense', label: 'Gastos', color: 'var(--s2)' }]}
+          <div className="card-head"><h2>Ingresos, gastos e inversión</h2><span className="small muted">últimos 6 meses</span></div>
+          <GroupedBars data={series.map((s) => ({ x: s.month, income: s.income, expense: s.expense, investment: s.investment }))}
+            series={[
+              { key: 'income', label: 'Ingresos', color: 'var(--s3)' },
+              { key: 'expense', label: 'Gastos', color: 'var(--s2)' },
+              { key: 'investment', label: 'Inversión', color: 'var(--s1)' },
+            ]}
             format={(v) => money(v, cur, 0)} xLabel={(x, long) => monthLabel(x, !long)} />
         </div>
 
@@ -106,7 +110,7 @@ export default function Dashboard({ go, onQuickAdd }) {
                 <div className="list-item" key={`${r.id}-${r.date}`}>
                   <TxAvatar item={r} cat={catById[r.categoryId]} />
                   <div className="main"><div className="title">{r.name}</div><div className="meta">{dateLabel(r.date)}</div></div>
-                  <div className={`amt ${r.type === 'income' ? 'pos' : ''}`}>{r.type === 'income' ? '+' : '−'}{money(r.amount, cur)}</div>
+                  <div className={`amt ${r.type === 'income' ? 'pos' : r.type === 'investment' ? 'inv' : ''}`}>{r.type === 'income' ? '+' : '−'}{money(r.amount, cur)}</div>
                 </div>
               ))}
             </div>

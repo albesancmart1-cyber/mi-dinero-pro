@@ -48,6 +48,10 @@ const P = {
   music: <><path d="M9 18V6l10-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="16.5" cy="16" r="2.5" /></>,
   game: <><path d="M7 8h10a4 4 0 0 1 4 4.5l-.5 3.3a2.2 2.2 0 0 1-3.9 1L15 15H9l-1.6 1.8a2.2 2.2 0 0 1-3.9-1L3 12.5A4 4 0 0 1 7 8z" /><path d="M7.5 10.5v3M6 12h3" /><circle cx="15.5" cy="11" r=".6" /><circle cx="17" cy="13" r=".6" /></>,
   scissors: <><circle cx="6.5" cy="7" r="2.5" /><circle cx="6.5" cy="17" r="2.5" /><path d="M8.5 8.5 20 17M8.5 15.5 20 7" /></>,
+  pie: <><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z" /><path d="M14.5 2.8v6.7h6.7a6.7 6.7 0 0 0-6.7-6.7z" /></>,
+  trend: <><path d="M3.5 20.5h17" /><path d="m4 16 5-5 3.5 3.5L20 7" /><path d="M15.5 7H20v4.5" /></>,
+  coins: <><ellipse cx="9" cy="7" rx="5.5" ry="2.5" /><path d="M3.5 7v4c0 1.4 2.5 2.5 5.5 2.5M3.5 11v4c0 1.4 2.5 2.5 5.5 2.5" /><ellipse cx="15" cy="13" rx="5.5" ry="2.5" /><path d="M9.5 13v4c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4" /></>,
+  piggy: <><path d="M5 11.5C5 8.5 8 6.5 12 6.5c1.3 0 2.5.2 3.5.6L18 5.5v3.2c.9.7 1.5 1.6 1.8 2.8h1.2v3.5h-1.4c-.5 1-1.3 1.8-2.3 2.4v2.1h-2.8v-1.3c-.8.2-1.6.3-2.5.3s-1.7-.1-2.5-.3v1.3H6.7v-2.2C5.6 16.4 5 14.8 5 11.5z" /><circle cx="15.5" cy="10.5" r=".6" /><path d="M5 11.5c-1.2 0-2-.8-2-2" /></>,
   graduation: <><path d="M2.5 9.5 12 5l9.5 4.5L12 14z" /><path d="M6.5 11.5V16c1.5 1.5 3.5 2.3 5.5 2.3s4-.8 5.5-2.3v-4.5M21.5 9.5V15" /></>,
 };
 
@@ -65,7 +69,7 @@ export const CATEGORY_GLYPHS = {
   cart: 3, fork: 2, cup: 2, house: 1, bolt: 4, car: 1, fuel: 8, tram: 1, ticket: 7, film: 7, music: 5, game: 7,
   tshirt: 5, bag: 5, health: 8, drop: 5, scissors: 5, dumbbell: 6, repeat: 7, wifi: 1, shield: 3, sofa: 4, laptop: 1,
   airplane: 3, gift: 8, book: 4, graduation: 4, paw: 2, baby: 5, bank: 1, doc: 4, box: 1,
-  briefcase: 6, sparkles: 4, chart: 6, banknote: 6,
+  briefcase: 6, sparkles: 4, chart: 6, banknote: 6, pie: 1, trend: 6, coins: 4, piggy: 5,
 };
 
 /** Icono de categoría: glifo sobre un cuadrado con el color de la categoría. */
@@ -97,8 +101,10 @@ export function Logo({ domain, size = 38, fallback = null, title }) {
 
 /** Avatar de un movimiento o recurrente: logo del comercio o icono de la categoría. */
 export function TxAvatar({ item, cat, size = 38 }) {
-  const m = merchantOf(item);
   const fb = <CategoryIcon cat={cat} size={size} />;
+  // Web indicada a mano (p. ej. la empresa de la nómina) o comercio del catálogo
+  if (item?.domain) return <Logo domain={item.domain} size={size} fallback={fb} title={item.payer || item.note || item.name} />;
+  const m = merchantOf(item);
   return m?.domain ? <Logo domain={m.domain} size={size} fallback={fb} title={m.name} /> : fb;
 }
 

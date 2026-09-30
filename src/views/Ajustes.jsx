@@ -62,9 +62,9 @@ function Categories() {
   return (
     <div className="card span2">
       <div className="card-head"><h2>Categorías</h2><span className="small muted">Toca un icono para cambiarlo</span></div>
-      {['expense', 'income'].map((tp) => (
+      {['expense', 'income', 'investment'].map((tp) => (
         <div key={tp} style={{ marginBottom: 14 }}>
-          <h3 style={{ marginBottom: 8 }}>{tp === 'expense' ? 'Gastos' : 'Ingresos'}</h3>
+          <h3 style={{ marginBottom: 8 }}>{{ expense: 'Gastos', income: 'Ingresos', investment: 'Inversión' }[tp]}</h3>
           <div className="cat-grid">
             {state.categories.filter((c) => c.type === tp).map((c) => (
               <div key={c.id} className="cat-edit">
@@ -91,7 +91,7 @@ function Categories() {
         </button>
         <input className="input" style={{ width: 200 }} placeholder="Nueva categoría" value={name} onChange={(e) => setName(e.target.value)} />
         <select className="input" style={{ width: 120 }} value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="expense">Gasto</option><option value="income">Ingreso</option>
+          <option value="expense">Gasto</option><option value="income">Ingreso</option><option value="investment">Inversión</option>
         </select>
         <button className="btn">Añadir</button>
       </form>

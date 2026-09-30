@@ -367,3 +367,34 @@ export function neededCurrencies(positions, brokers, quotes, currency) {
   }
   return [...set];
 }
+
+/**
+ * Datos para los gráficos circulares de composición actual y deseada.
+ * Cada activo conserva el mismo color (ranura) en los dos gráficos; a partir
+ * del activo nº `maxSlices` se agrupan en "Otros" para no repetir colores.
+ */
+export function compositionSlices(pf, maxSlices = 8) {
+  const entities = pf.assets
+    .filter((a) => a.weight > 0 || a.targetWeight > 0)
+    .map((a) => ({ key: a.key, label: a.name, current: a.weight > 0 ? a.weight : 0, target: a.targetWeight > 0 ? a.targetWeight : 0 }))
+    .sort((a, b) => Math.max(b.current, b.target) - Math.max(a.current, a.target));
+  const main = entities.slice(0, maxSlices).map((e, i) => ({ ...e, slot: i + 1 }));
+  const rest = entities.slice(maxSlices);
+  if (rest.length) {
+    main.push({
+      key: 'otros', label: `Otros (${rest.length})`, slot: null,
+      current: rest.reduce((s, e) => s + e.current, 0),
+      target: rest.reduce((s, e) => s + e.target, 0),
+    });
+  }
+  const deviations = main
+    .filter((e) => e.key !== 'otros')
+    .map((e) => ({ label: e.label, diff: e.current - e.target }))
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+  return {
+    current: main.filter((e) => e.current > 0),
+    target: main.filter((e) => e.target > 0),
+    deviations,
+    targetSum: entities.reduce((s, e) => s + e.target, 0),
+  };
+}

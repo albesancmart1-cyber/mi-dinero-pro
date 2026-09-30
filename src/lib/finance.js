@@ -1,5 +1,10 @@
 // Lógica de finanzas personales: movimientos, presupuestos y recurrentes.
 // Funciones puras (fechas en formato 'YYYY-MM-DD', meses 'YYYY-MM').
+// Tipos de movimiento: 'income' (ingreso), 'expense' (gasto) e
+// 'investment' (aportación a inversión: sale de la cuenta pero no es un gasto).
+
+export const TX_TYPES = ['income', 'expense', 'investment'];
+export const TYPE_LABELS = { income: 'Ingreso', expense: 'Gasto', investment: 'Inversión' };
 
 export const FREQUENCIES = {
   weekly: { label: 'Semanal', perMonth: 52 / 12 },
@@ -55,9 +60,26 @@ export function nextOccurrence(date, frequency, anchorDay) {
   }
 }
 
-/** Importe mensual equivalente de un recurrente. */
+/** Nº de pagas al año de una nómina mensual (12 + pagas extra). */
+export function paysPerYear(r) {
+  return 12 + (r.frequency === 'monthly' ? (r.extraPays?.length || 0) : 0);
+}
+
+/** Importe mensual equivalente de un recurrente (incluye pagas extra prorrateadas). */
 export function monthlyEquivalent(r) {
-  return (Number(r.amount) || 0) * (FREQUENCIES[r.frequency]?.perMonth ?? 1);
+  const base = (Number(r.amount) || 0) * (FREQUENCIES[r.frequency]?.perMonth ?? 1);
+  if (r.frequency !== 'monthly' || !r.extraPays?.length) return base;
+  const extra = Number(r.extraAmount) || Number(r.amount) || 0;
+  return base + (extra * r.extraPays.length) / 12;
+}
+
+/** Importe que se espera de un recurrente en un mes concreto (con paga extra si toca). */
+export function expectedInMonth(r, month) {
+  if (!r.active) return 0;
+  if (r.frequency !== 'monthly') return monthlyEquivalent(r);
+  const m = Number(month.slice(5, 7));
+  const extra = r.extraPays?.includes(m) ? Number(r.extraAmount) || Number(r.amount) || 0 : 0;
+  return (Number(r.amount) || 0) + extra;
 }
 
 /**
@@ -72,16 +94,19 @@ export function materializeRecurring(recurring, today, makeId) {
     const anchor = r.anchorDay || Number(r.nextDate.slice(8, 10));
     let guard = 0;
     while (next <= today && (!r.endDate || next <= r.endDate) && guard < 500) {
-      created.push({
-        id: makeId(),
+      const base = {
         date: next,
         type: r.type,
-        amount: Number(r.amount) || 0,
         categoryId: r.categoryId,
-        note: r.name,
         recurringId: r.id,
         ...(r.merchant ? { merchant: r.merchant } : {}),
-      });
+        ...(r.domain ? { domain: r.domain } : {}),
+      };
+      created.push({ ...base, id: makeId(), amount: Number(r.amount) || 0, note: r.name });
+      // Paga extra (p. ej. nómina de 14 pagas: junio y diciembre)
+      if (r.frequency === 'monthly' && r.extraPays?.includes(Number(next.slice(5, 7)))) {
+        created.push({ ...base, id: makeId(), amount: Number(r.extraAmount) || Number(r.amount) || 0, note: `${r.name} · paga extra`, extraPay: true });
+      }
       next = nextOccurrence(next, r.frequency, anchor);
       guard++;
     }
@@ -121,18 +146,24 @@ export function subscriptionAlerts(recurring, today, days = 7) {
 }
 
 export function monthTotals(transactions, month) {
-  let income = 0, expense = 0;
+  let income = 0, expense = 0, investment = 0;
   const byCategory = {};
   for (const t of transactions) {
     if (monthOf(t.date) !== month) continue;
     const a = Number(t.amount) || 0;
     if (t.type === 'income') income += a;
-    else {
-      expense += a;
-      byCategory[t.categoryId] = (byCategory[t.categoryId] || 0) + a;
-    }
+    else if (t.type === 'investment') investment += a;
+    else expense += a;
+    byCategory[t.categoryId] = (byCategory[t.categoryId] || 0) + a;
   }
-  return { income, expense, balance: income - expense, byCategory };
+  return {
+    income,
+    expense,
+    investment,
+    balance: income - expense, // ahorro (incluye lo invertido)
+    free: income - expense - investment, // lo que queda en la cuenta
+    byCategory,
+  };
 }
 
 /** Presupuesto de un mes: el del mes si existe, si no la plantilla por defecto. */
@@ -140,19 +171,39 @@ export function budgetFor(state, month) {
   return state.budgets?.[month] || state.budgetTemplate || {};
 }
 
+/**
+ * Estado del presupuesto de un mes en sus tres bloques: ingresos previstos,
+ * gastos (límite) e inversión (objetivo de aportación).
+ */
 export function budgetStatus(state, month) {
   const budget = budgetFor(state, month);
-  const { byCategory, expense, income } = monthTotals(state.transactions, month);
-  const cats = state.categories.filter((c) => c.type === 'expense');
-  const rows = cats
-    .map((c) => {
-      const limit = Number(budget[c.id]) || 0;
-      const spent = byCategory[c.id] || 0;
-      return { category: c, limit, spent, remaining: limit - spent, ratio: limit > 0 ? spent / limit : null };
-    })
-    .filter((r) => r.limit > 0 || r.spent > 0);
-  const totalLimit = rows.reduce((s, r) => s + r.limit, 0);
-  return { rows, totalLimit, totalSpent: expense, income, remaining: totalLimit - expense };
+  const totals = monthTotals(state.transactions, month);
+  const sections = {};
+  for (const type of TX_TYPES) {
+    const rows = state.categories
+      .filter((c) => c.type === type)
+      .map((c) => {
+        const limit = Number(budget[c.id]) || 0;
+        const spent = totals.byCategory[c.id] || 0;
+        return { category: c, limit, spent, remaining: limit - spent, ratio: limit > 0 ? spent / limit : null };
+      })
+      .filter((r) => r.limit > 0 || r.spent > 0);
+    const planned = rows.reduce((s, r) => s + r.limit, 0);
+    sections[type] = { rows, planned, actual: totals[type], remaining: planned - totals[type] };
+  }
+  const exp = sections.expense;
+  return {
+    sections,
+    // Presupuesto base cero: lo previsto de ingresos menos gastos e inversión
+    unassigned: sections.income.planned - exp.planned - sections.investment.planned,
+    totals,
+    // Compatibilidad: bloque de gastos
+    rows: exp.rows,
+    totalLimit: exp.planned,
+    totalSpent: exp.actual,
+    income: totals.income,
+    remaining: exp.remaining,
+  };
 }
 
 /** Serie de ingresos/gastos de los últimos `n` meses. */
@@ -161,7 +212,7 @@ export function monthlySeries(transactions, endMonth, n = 6) {
   for (let i = n - 1; i >= 0; i--) {
     const m = shiftMonth(endMonth, -i);
     const t = monthTotals(transactions, m);
-    out.push({ month: m, income: t.income, expense: t.expense, balance: t.balance });
+    out.push({ month: m, income: t.income, expense: t.expense, investment: t.investment, balance: t.balance });
   }
   return out;
 }

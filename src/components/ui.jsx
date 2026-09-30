@@ -57,9 +57,13 @@ export function Seg({ value, onChange, options, big }) {
   );
 }
 
-export function Progress({ ratio, mark }) {
+/**
+ * Barra de progreso. `goal`: llegar al 100% es bueno (ingresos, inversión);
+ * si no, es un límite (gastos) y pasarse se marca en rojo.
+ */
+export function Progress({ ratio, mark, goal = false }) {
   const r = ratio == null ? 0 : Math.max(0, ratio);
-  const cls = r > 1 ? 'over' : r > 0.85 ? 'warn' : '';
+  const cls = goal ? (r >= 1 ? 'done' : '') : r > 1 ? 'over' : r > 0.85 ? 'warn' : '';
   return (
     <div className="bar" role="progressbar" aria-valuenow={Math.round(r * 100)} aria-valuemin={0} aria-valuemax={100}>
       <i className={cls} style={{ width: `${Math.min(100, r * 100)}%` }} />

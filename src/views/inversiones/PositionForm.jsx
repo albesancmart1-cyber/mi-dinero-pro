@@ -183,8 +183,8 @@ export function TradeForm({ item, onClose }) {
         date: new Date().toISOString().slice(0, 10), side, qty: parseAmount(qty), price: parseAmount(price),
       }] } : p)),
       transactions: addCash ? [...s.transactions, {
-        id: uid(), date: new Date().toISOString().slice(0, 10), type: side === 'buy' ? 'expense' : 'income',
-        amount: Math.round(parseAmount(qty) * parseAmount(price) * rate * 100) / 100, categoryId: side === 'buy' ? 'c-otros-g' : 'c-otros-i',
+        id: uid(), date: new Date().toISOString().slice(0, 10), type: side === 'buy' ? 'investment' : 'income',
+        amount: Math.round(parseAmount(qty) * parseAmount(price) * rate * 100) / 100, categoryId: side === 'buy' ? (/-(EUR|USD)$/.test(item.symbol || '') ? 'c-inv-cripto' : ['ETFs', 'Fondos'].includes(item.type) ? 'c-inv-fondos' : 'c-inv-acciones') : 'c-otros-i',
         note: `${side === 'buy' ? 'Compra' : 'Venta'} ${item.name}`,
       }] : s.transactions,
     }));
@@ -206,7 +206,7 @@ export function TradeForm({ item, onClose }) {
             {side === 'sell' && <> · resultado de la venta: <b>{money(parseAmount(qty) * (parseAmount(price) - (item.avgPrice || 0)), ccy || state.settings.currency)}</b></>}
           </div>
         )}
-        <label className="check small"><input type="checkbox" checked={addCash} onChange={(e) => setAddCash(e.target.checked)} /> Registrar también como movimiento en mis finanzas</label>
+        <label className="check small"><input type="checkbox" checked={addCash} onChange={(e) => setAddCash(e.target.checked)} /> Registrar también como movimiento en mis finanzas (cuenta en el presupuesto de inversión)</label>
       </div>
     </Modal>
   );

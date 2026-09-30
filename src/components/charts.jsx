@@ -16,6 +16,7 @@ function niceTicks(min, max, count = 4) {
 }
 
 const compact = new Intl.NumberFormat('es-ES', { notation: 'compact', maximumFractionDigits: 1 });
+const pct1 = new Intl.NumberFormat('es-ES', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /**
  * Donut con leyenda. items: [{ label, value, color, sub }]
@@ -54,11 +55,11 @@ export function Donut({ items, size = 168, center, format = (v) => v }) {
             onMouseEnter={() => setHover(a.idx)}
             onMouseLeave={() => setHover(null)}
           >
-            <title>{`${a.it.label}: ${format(a.it.value)} (${(a.frac * 100).toFixed(1)}%)`}</title>
+            <title>{`${a.it.label}: ${format(a.it.value)} (${pct1.format(a.frac)})`}</title>
           </path>
         ))}
         <text x={size / 2} y={size / 2 - 4} textAnchor="middle" style={{ fill: 'var(--ink)', fontSize: 15, fontWeight: 650 }}>
-          {h ? `${((h.value / total) * 100).toFixed(1)}%` : center?.[0]}
+          {h ? pct1.format(h.value / total) : center?.[0]}
         </text>
         <text x={size / 2} y={size / 2 + 14} textAnchor="middle" style={{ fill: 'var(--muted)', fontSize: 11 }}>
           {h ? h.label.slice(0, 18) : center?.[1]}
@@ -69,7 +70,7 @@ export function Donut({ items, size = 168, center, format = (v) => v }) {
           <div className="r" key={it.label} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
             <i style={{ width: 10, height: 10, borderRadius: 3, background: it.color, display: 'inline-block' }} />
             <span>{it.label}</span>
-            <span className="tnum">{total > 0 ? ((it.value / total) * 100).toFixed(1) : 0}%</span>
+            <span className="tnum">{pct1.format(total > 0 ? it.value / total : 0)}</span>
           </div>
         ))}
       </div>

@@ -29,7 +29,14 @@ export const DEFAULT_CATEGORIES = [
   { id: 'c-extra', name: 'Ingresos extra', type: 'income', icon: 'sparkles' },
   { id: 'c-divid', name: 'Dividendos', type: 'income', icon: 'chart' },
   { id: 'c-otros-i', name: 'Otros ingresos', type: 'income', icon: 'banknote' },
+  { id: 'c-inv-fondos', name: 'Fondos indexados', type: 'investment', icon: 'pie' },
+  { id: 'c-inv-acciones', name: 'Acciones', type: 'investment', icon: 'trend' },
+  { id: 'c-inv-cripto', name: 'Criptomonedas', type: 'investment', icon: 'coins' },
+  { id: 'c-inv-pension', name: 'Plan de pensiones', type: 'investment', icon: 'piggy' },
+  { id: 'c-inv-ahorro', name: 'Depósitos y cuentas remuneradas', type: 'investment', icon: 'bank' },
 ];
+
+export const CATEGORIES_VERSION = 3;
 
 /**
  * Pone al día las categorías guardadas: añade las nuevas categorías
@@ -48,8 +55,9 @@ export function upgradeCategories(cats) {
   for (const d of DEFAULT_CATEGORIES) {
     if (have.has(d.id)) continue;
     const lastSame = out.map((c) => c.type).lastIndexOf(d.type);
-    const otros = out.findIndex((c) => c.id === (d.type === 'expense' ? 'c-otros-g' : 'c-otros-i'));
-    const at = otros >= 0 ? otros : lastSame + 1;
+    const otrosId = { expense: 'c-otros-g', income: 'c-otros-i' }[d.type];
+    const otros = otrosId ? out.findIndex((c) => c.id === otrosId) : -1;
+    const at = otros >= 0 ? otros : lastSame >= 0 ? lastSame + 1 : out.length;
     out.splice(at, 0, d);
     have.add(d.id);
   }
@@ -66,7 +74,7 @@ export function defaultState() {
       rules: {},
     },
     categories: DEFAULT_CATEGORIES,
-    categoriesVersion: 2,
+    categoriesVersion: CATEGORIES_VERSION,
     transactions: [],
     budgets: {},
     budgetTemplate: {},

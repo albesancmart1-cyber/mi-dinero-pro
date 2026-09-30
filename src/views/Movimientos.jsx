@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../lib/store.jsx';
-import { monthOf, monthTotals, shiftMonth, todayISO } from '../lib/finance.js';
+import { TYPE_LABELS, monthOf, monthTotals, shiftMonth, todayISO } from '../lib/finance.js';
 import { dateLabel, money, monthLabel } from '../lib/format.js';
 import { Empty, Seg, Stat } from '../components/ui.jsx';
 import QuickAdd from './QuickAdd.jsx';
@@ -23,9 +23,9 @@ export function TxItem({ t, cat, cur, onClick }) {
       <TxAvatar item={t} cat={cat} />
       <div className="main">
         <div className="title">{t.note || cat?.name || 'Sin concepto'}</div>
-        <div className="meta">{cat?.name}{t.recurringId ? ' · fijo' : ''}</div>
+        <div className="meta">{cat?.name}{t.type === 'investment' ? ' · inversión' : ''}{t.recurringId ? ' · fijo' : ''}</div>
       </div>
-      <div className={`amt ${t.type === 'income' ? 'pos' : ''}`}>
+      <div className={`amt ${t.type === 'income' ? 'pos' : t.type === 'investment' ? 'inv' : ''}`}>
         {t.type === 'income' ? '+' : '−'}{money(t.amount, cur)}
       </div>
     </div>
@@ -61,7 +61,7 @@ export default function Movimientos() {
 
   function exportCsv() {
     const rows = [['Fecha', 'Tipo', 'Categoría', 'Concepto', 'Importe']];
-    txs.forEach((t) => rows.push([t.date, t.type === 'income' ? 'Ingreso' : 'Gasto', catById[t.categoryId]?.name || '', t.note || '', String(t.amount).replace('.', ',')]));
+    txs.forEach((t) => rows.push([t.date, TYPE_LABELS[t.type] || 'Gasto', catById[t.categoryId]?.name || '', t.note || '', String(t.amount).replace('.', ',')]));
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
@@ -76,9 +76,11 @@ export default function Movimientos() {
         <MonthPicker month={month} setMonth={setMonth} />
       </div>
 
-      <div className="grid g3" style={{ marginBottom: 16 }}>
+      <div className="grid g4" style={{ marginBottom: 16 }}>
         <Stat label="Ingresos" value={money(totals.income, cur)} deltaClass="pos" />
         <Stat label="Gastos" value={money(totals.expense, cur)} />
+        <Stat label="Invertido" value={money(totals.investment, cur)}
+          delta={totals.income > 0 ? `${Math.round((totals.investment / totals.income) * 100)}% de tus ingresos` : null} />
         <Stat label="Ahorro" value={money(totals.balance, cur)}
           delta={totals.income > 0 ? `${Math.round((totals.balance / totals.income) * 100)}% de tus ingresos` : null}
           deltaClass={totals.balance >= 0 ? 'pos' : 'neg'} />
@@ -87,7 +89,7 @@ export default function Movimientos() {
       <div className="card">
         <div className="row wrap" style={{ marginBottom: 8 }}>
           <Seg value={filter} onChange={setFilter} options={[
-            { value: 'all', label: 'Todos' }, { value: 'expense', label: 'Gastos' }, { value: 'income', label: 'Ingresos' },
+            { value: 'all', label: 'Todos' }, { value: 'expense', label: 'Gastos' }, { value: 'income', label: 'Ingresos' }, { value: 'investment', label: 'Inversión' },
           ]} />
           <select className="input" style={{ width: 180 }} value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="">Todas las categorías</option>

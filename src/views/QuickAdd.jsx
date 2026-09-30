@@ -188,6 +188,7 @@ export default function QuickAdd({ onClose, editing }) {
           options={[
             { value: 'expense', label: 'Gasto', className: 'expense' },
             { value: 'income', label: 'Ingreso', className: 'income' },
+            { value: 'investment', label: 'Inversión', className: 'investment' },
           ]}
         />
         <div className="amount-row">
@@ -205,7 +206,7 @@ export default function QuickAdd({ onClose, editing }) {
         {flash && <div className="alert info">✓ {flash}</div>}
 
         <MerchantInput value={note} onChange={onNote} onPick={pickMerchant} categories={state.categories}
-          placeholder={type === 'expense' ? 'Comercio o concepto: Mercadona, Zara, Netflix…' : 'Concepto (opcional)'} />
+          placeholder={type === 'expense' ? 'Comercio o concepto: Mercadona, Zara, Netflix…' : type === 'investment' ? 'Concepto: aportación fondo indexado, MyInvestor…' : 'Concepto (opcional)'} />
 
         {recents.length > 0 && !editing && (
           <div>

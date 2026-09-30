@@ -552,3 +552,15 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .icon-picker button.on { box-shadow: 0 0 0 2px var(--accent); }
 .cat-edit:has(.icon-picker) { grid-column: 1 / -1; }
 .cat-edit:has(.icon-picker) .input { max-width: 320px; }
+
+/* Tipo inversión */
+.seg button.on.investment { color: var(--s1); }
+.amount-input.investment { color: var(--s1); }
+.inv { color: var(--s1); }
+.bar > i.done { background: linear-gradient(90deg, #3fbf5a, var(--good)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+.budget-block + .budget-block { margin-top: 18px; }
+.budget-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 10px; align-items: end; }
+.budget-sum .eq { font-size: 13px; color: var(--muted); }
+.salary-row { gap: 16px; }
+.salary-row + .salary-row { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.salary-row h2 { font-size: 20px; }
