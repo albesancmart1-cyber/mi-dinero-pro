@@ -1,7 +1,11 @@
 {
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
   "functions": {
-    "api/cron-snapshot.js": {
-      "maxDuration": 30
-    }
+    "api/cron-snapshot.js": { "maxDuration": 30 },
+    "api/quotes.js": { "maxDuration": 20 },
+    "api/search.js": { "maxDuration": 10 },
+    "api/state.js": { "maxDuration": 10 }
   }
 }

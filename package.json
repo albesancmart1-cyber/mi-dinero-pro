@@ -1,8 +1,23 @@
 {
-  "name": "mi-dinero-cron",
-  "version": "1.0.0",
+  "name": "mi-dinero-pro",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test \"tests/*.test.js\""
+  },
   "dependencies": {
-    "firebase-admin": "^12.0.0"
+    "@fontsource-variable/inter": "^5.3.0",
+    "firebase-admin": "^12.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
   }
 }
