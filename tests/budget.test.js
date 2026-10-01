@@ -23,8 +23,7 @@ test('la inversión no cuenta como gasto', () => {
 test('presupuesto en tres bloques y "sin asignar"', () => {
   const state = {
     categories: DEFAULT_CATEGORIES,
-    budgetTemplate: { 'c-nomina': 2100, 'c-casa': 800, 'c-super': 300, 'c-inv-fondos': 400 },
-    budgets: {},
+    budgets: { '2026-01': { 'c-nomina': 2100, 'c-casa': 800, 'c-super': 300, 'c-inv-fondos': 400 } },
     transactions: [
       { date: '2026-09-01', type: 'income', amount: 2100, categoryId: 'c-nomina' },
       { date: '2026-09-02', type: 'expense', amount: 120, categoryId: 'c-super' },

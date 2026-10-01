@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../lib/store.jsx';
 import { defaultState, uid } from '../lib/defaults.js';
+import { migrateBudgets } from '../lib/budget.js';
 import { money, parseAmount } from '../lib/format.js';
 import { Field } from '../components/ui.jsx';
 import { CATEGORY_GLYPHS, CategoryIcon } from '../components/icons.jsx';
@@ -166,7 +167,7 @@ export default function Ajustes() {
       try {
         const s = JSON.parse(txt);
         if (!s || !Array.isArray(s.transactions)) throw new Error('Formato no válido');
-        if (confirm('Esto sustituirá todos tus datos por los de la copia. ¿Continuar?')) update(() => ({ ...defaultState(), ...s }));
+        if (confirm('Esto sustituirá todos tus datos por los de la copia. ¿Continuar?')) update(() => migrateBudgets({ ...defaultState(), ...s, budgetVersion: s.budgetVersion || 1 }));
       } catch (ex) {
         alert(`No se pudo importar: ${ex.message}`);
       }
