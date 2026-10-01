@@ -40,9 +40,9 @@ export function Stat({ label, value, delta, deltaClass = '' }) {
   );
 }
 
-export function Seg({ value, onChange, options, big }) {
+export function Seg({ value, onChange, options, big, small }) {
   return (
-    <div className={`seg${big ? ' big' : ''}`} role="tablist">
+    <div className={`seg${big ? ' big' : ''}${small ? ' sm' : ''}`} role="tablist">
       {options.map((o) => (
         <button
           key={o.value}

@@ -7,6 +7,7 @@ import { GroupedBars } from '../components/charts.jsx';
 import { Empty, Progress, Stat } from '../components/ui.jsx';
 import { TxItem } from './Movimientos.jsx';
 import { CategoryIcon, TxAvatar } from '../components/icons.jsx';
+import { PatrimonioEvolution } from '../components/Evolution.jsx';
 
 export default function Dashboard({ go, onQuickAdd }) {
   const { state } = useStore();
@@ -60,6 +61,12 @@ export default function Dashboard({ go, onQuickAdd }) {
           <div className={`delta ${tone(pf.pnl)}`}>{pct(pf.returnPct, 2, true)} · {signedMoney(pf.pnl, cur)}</div>
         </div>
       </div>
+
+      {state.positions.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <PatrimonioEvolution cash={cash} title="Evolución del patrimonio" />
+        </div>
+      )}
 
       <div className="grid g3">
         <div className="card span2">

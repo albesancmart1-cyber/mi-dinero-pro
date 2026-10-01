@@ -398,3 +398,27 @@ export function compositionSlices(pf, maxSlices = 8) {
     targetSum: entities.reduce((s, e) => s + e.target, 0),
   };
 }
+
+/** Valor actual de cada broker en la divisa principal: { [brokerId]: valor }. */
+export function brokerValues(pf) {
+  const out = {};
+  for (const r of pf.rows) out[r.brokerId] = Math.round(((out[r.brokerId] || 0) + (r.value || 0)) * 100) / 100;
+  return out;
+}
+
+/**
+ * Exposición por divisa: cuánto de tu patrimonio está en cada divisa de
+ * cotización (valor ya convertido a la divisa principal).
+ */
+export function currencyExposure(pf, currency, brokers = []) {
+  const m = new Map();
+  for (const r of pf.rows) {
+    if (!(r.value > 0)) continue;
+    const c = r.market ? r.quoteCurrency : (brokers.find((b) => b.id === r.brokerId)?.currency || currency);
+    m.set(c, (m.get(c) || 0) + r.value);
+  }
+  const total = [...m.values()].reduce((s, v) => s + v, 0);
+  return [...m.entries()]
+    .map(([ccy, value]) => ({ currency: ccy, value, weight: total > 0 ? value / total : 0 }))
+    .sort((a, b) => b.value - a.value);
+}

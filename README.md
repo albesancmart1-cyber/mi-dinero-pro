@@ -29,6 +29,13 @@ Web app (React + Vite) desplegada en Vercel, usable desde el móvil (se puede "a
 - **Seguimiento**: retorno anual esperado `(objetivo / precio)^(1/5) − 1` y posición en el rango de 52 semanas.
 - **Importar Excel**: lee tu `CARTERA.xlsx` (Broker, Cartera, Seguimiento, Activos) y asigna tickers automáticamente. También hay un botón "Cargar mi cartera del Excel" con tus posiciones ya mapeadas.
 
+### Divisas y evolución del patrimonio
+
+- **Conversión de divisas** (igual que la hoja *Broker* del Excel): cada posición se valora en su divisa de cotización (USD, CAD, TWD…) y se convierte a tu divisa principal con el tipo de cambio vigente; lo invertido y el valor actual usan el mismo tipo, así que la rentabilidad de cada posición es la de su propia divisa. Las posiciones manuales (efectivo, fondos) se convierten desde la divisa de su broker. Los tipos salen de Yahoo Finance (`USDEUR=X`…), con respaldo en open.er-api.com. Los tests reproducen los importes en euros del Excel.
+- **Evolución del patrimonio** (Inversiones y Resumen): gráficas de 1D, 1S, 1M, YTD, 1A y 5A en tu divisa principal, **total y por broker** (en valor o en variación %). Se reconstruyen con los precios **y tipos de cambio históricos** de Yahoo (`/api/history`) aplicados a tus posiciones actuales, ajustadas con las compras y ventas registradas con *Operar*. Se puede quitar el efecto del tipo de cambio para ver solo lo que ha hecho el precio.
+- **Exposición por divisa**: qué parte de tu patrimonio está en cada divisa.
+- Cada día (app abierta o cron) se guarda además una foto real con el valor por broker, para disponer de histórico propio a largo plazo.
+
 Los cálculos están en `src/lib/portfolio.js` y los tests comprueban que reproducen al céntimo los valores de la hoja *Cartera* del Excel.
 
 ### Cotizaciones (gratis)

@@ -6,7 +6,7 @@
 
 import { firebaseConfigured, mainDoc } from './_lib/firebase.js';
 import { getMarketData } from './_lib/market.js';
-import { computePortfolio, isMarketPosition, neededCurrencies } from '../src/lib/portfolio.js';
+import { brokerValues, computePortfolio, isMarketPosition, neededCurrencies } from '../src/lib/portfolio.js';
 import { monthTotals } from '../src/lib/finance.js';
 
 export default async function handler(req, res) {
@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       invested: pf.totalInvested,
       returnPct: pf.returnPct,
       netWorth: pf.totalValue + cash,
+      brokers: brokerValues(pf),
       monthExpense: monthTotals(state.transactions || [], date.slice(0, 7)).expense,
       currency,
       source: 'cron',

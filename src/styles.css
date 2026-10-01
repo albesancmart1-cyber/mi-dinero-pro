@@ -657,3 +657,14 @@ table.sheet { border-collapse: separate; border-spacing: 0; min-width: 1100px; w
   table.sheet { min-width: 1000px; }
 }
 @media (max-width: 760px) { .hide-sm { display: none; } .add-cat { white-space: nowrap; } }
+
+/* ---------- Evolución del patrimonio ---------- */
+.seg.sm button { padding: 5px 12px; font-size: 13px; }
+.evo-head { margin-bottom: 6px; }
+.evo-value { font-size: 30px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
+.evo-change { font-weight: 600; }
+.evo-change.pos { color: var(--pos); } .evo-change.neg { color: var(--neg); }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; flex: none; }
+@media (max-width: 760px) { .seg.sm button { padding: 5px 9px; } .evo-value { font-size: 26px; } }
+
+@media (max-width: 760px) { .card-head { flex-wrap: wrap; } }

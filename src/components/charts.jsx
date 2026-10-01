@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export const SERIES = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)', 'var(--s5)', 'var(--s6)', 'var(--s7)', 'var(--s8)'];
 
@@ -13,6 +13,20 @@ function niceTicks(min, max, count = 4) {
   const ticks = [];
   for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
   return ticks;
+}
+
+/** Ancho real del contenedor: el gráfico se dibuja a tamaño natural y el texto no se encoge en el móvil. */
+function useChartWidth(initial = 640) {
+  const box = useRef(null);
+  const [W, setW] = useState(initial);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w > 120) setW(w); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [box, W];
 }
 
 const compact = new Intl.NumberFormat('es-ES', { notation: 'compact', maximumFractionDigits: 1 });
@@ -82,10 +96,11 @@ export function Donut({ items, size = 168, center, format = (v) => v }) {
  * Gráfico de líneas con cruceta y tooltip.
  * series: [{ key, label, color }], data: [{ x: 'YYYY-MM-DD', [key]: number }]
  */
-export function LineChart({ data, series, height = 220, format = (v) => v, xLabel = (x) => x }) {
+export function LineChart({ data, series, height = 220, format = (v) => v, xLabel = (x) => x, tickFormat = (v) => compact.format(v) }) {
   const ref = useRef(null);
+  const [box, W] = useChartWidth();
   const [hi, setHi] = useState(null);
-  const W = 640, H = height, L = 48, R = 12, T = 10, B = 26;
+  const H = height, L = 48, R = 12, T = 10, B = 26;
   const { ticks, xs, ys } = useMemo(() => {
     const vals = data.flatMap((d) => series.map((s) => d[s.key]).filter((v) => v != null));
     const min = Math.min(...vals), max = Math.max(...vals);
@@ -95,7 +110,7 @@ export function LineChart({ data, series, height = 220, format = (v) => v, xLabe
     const xs = (i) => L + (data.length > 1 ? (i / (data.length - 1)) * (W - L - R) : (W - L - R) / 2);
     const ys = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
     return { ticks, xs, ys };
-  }, [data, series, H]);
+  }, [data, series, H, W]);
 
   if (!data.length) return null;
 
@@ -106,16 +121,17 @@ export function LineChart({ data, series, height = 220, format = (v) => v, xLabe
     setHi(Math.max(0, Math.min(data.length - 1, i)));
   };
 
-  const labelIdx = data.length <= 6 ? data.map((_, i) => i) : [0, Math.floor(data.length / 2), data.length - 1];
+  const n = data.length;
+  const labelIdx = n <= 6 ? data.map((_, i) => i) : [0, Math.round((n - 1) / 3), Math.round(((n - 1) * 2) / 3), n - 1];
   const hp = hi != null ? data[hi] : null;
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={box} style={{ position: 'relative' }}>
       <svg ref={ref} className="chart" viewBox={`0 0 ${W} ${H}`} onMouseMove={onMove} onMouseLeave={() => setHi(null)} role="img">
         {ticks.map((t) => (
           <g key={t}>
-            <line className="grid-line" x1={L} x2={W - R} y1={ys(t)} y2={ys(t)} />
-            <text x={L - 6} y={ys(t) + 4} textAnchor="end">{compact.format(t)}</text>
+            <line className={t === 0 ? 'base-line' : 'grid-line'} x1={L} x2={W - R} y1={ys(t)} y2={ys(t)} />
+            <text x={L - 6} y={ys(t) + 4} textAnchor="end">{tickFormat(t)}</text>
           </g>
         ))}
         {labelIdx.map((i) => (
@@ -162,8 +178,9 @@ export function LineChart({ data, series, height = 220, format = (v) => v, xLabe
 
 /** Barras agrupadas (p. ej. ingresos vs gastos por mes). */
 export function GroupedBars({ data, series, height = 200, format = (v) => v, xLabel = (x) => x }) {
+  const [box, W] = useChartWidth();
   const [hi, setHi] = useState(null);
-  const W = 640, H = height, L = 48, R = 8, T = 10, B = 26;
+  const H = height, L = 48, R = 8, T = 10, B = 26;
   const max = Math.max(1, ...data.flatMap((d) => series.map((s) => d[s.key] || 0)));
   const ticks = niceTicks(0, max);
   const top = ticks[ticks.length - 1];
@@ -173,7 +190,7 @@ export function GroupedBars({ data, series, height = 200, format = (v) => v, xLa
   const hp = hi != null ? data[hi] : null;
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={box} style={{ position: 'relative' }}>
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" onMouseLeave={() => setHi(null)}>
         {ticks.map((t) => (
           <g key={t}>

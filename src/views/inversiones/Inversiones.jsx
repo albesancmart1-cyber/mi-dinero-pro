@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../../lib/store.jsx';
 import { useMarket } from '../../lib/market.jsx';
-import { ASSET_TYPES, analyzePortfolio, compositionSlices, weightsByType } from '../../lib/portfolio.js';
+import { ASSET_TYPES, analyzePortfolio, compositionSlices, currencyExposure, weightsByType } from '../../lib/portfolio.js';
 import { excelSeed, uid } from '../../lib/defaults.js';
 import { money, num, parseAmount, pct, signedMoney, tone, dateLabel } from '../../lib/format.js';
-import { Donut, LineChart, SERIES } from '../../components/charts.jsx';
+import { Donut, SERIES } from '../../components/charts.jsx';
+import { EvolutionSection } from '../../components/Evolution.jsx';
 import { Empty, Field, Modal, Stat } from '../../components/ui.jsx';
 import { PositionForm, TradeForm } from './PositionForm.jsx';
 import ImportExcel from './ImportExcel.jsx';
@@ -26,7 +27,7 @@ function MarketStatus() {
 
 /** Pestaña "Cartera": réplica de la hoja Cartera del Excel. */
 function Cartera({ onEditAsset }) {
-  const { state, update, history: serverHistory } = useStore();
+  const { state, update } = useStore();
   const { portfolio: pf } = useMarket();
   const cur = state.settings.currency;
   const [editTarget, setEditTarget] = useState(false);
@@ -35,12 +36,7 @@ function Cartera({ onEditAsset }) {
   const sliceColor = (e) => (e.slot ? SERIES[e.slot - 1] : 'var(--muted)');
   const fmtPct = (v) => pct(v, 1);
 
-  const history = useMemo(() => {
-    const m = new Map();
-    serverHistory.forEach((h) => m.set(h.date, { x: h.date, value: h.value, invested: h.invested }));
-    state.history.forEach((h) => m.set(h.date, { x: h.date, value: h.value, invested: h.invested }));
-    return [...m.values()].sort((a, b) => a.x.localeCompare(b.x));
-  }, [state.history, serverHistory]);
+  const exposure = currencyExposure(pf, cur, state.brokers);
 
   function setTargetWeight(asset, v) {
     const w = v === '' ? null : parseAmount(v) / 100;
@@ -128,6 +124,8 @@ function Cartera({ onEditAsset }) {
         </p>
       </div>
 
+      <EvolutionSection />
+
       <div className="grid g2" style={{ marginBottom: 16 }}>
         <div className="card">
           <div className="card-head"><h2>Composición actual</h2><span className="small muted">peso sobre {money(pf.totalValue, cur, 0)}</span></div>
@@ -164,11 +162,18 @@ function Cartera({ onEditAsset }) {
           ) : <Empty>Sin datos</Empty>}
         </div>
         <div className="card">
-          <div className="card-head"><h2>Evolución de la cartera</h2></div>
-          {history.length >= 2 ? (
-            <LineChart data={history} format={(v) => money(v, cur, 0)} xLabel={(x) => dateLabel(x)}
-              series={[{ key: 'value', label: 'Valor', color: 'var(--s1)' }, { key: 'invested', label: 'Invertido', color: 'var(--s2)', dashed: true }]} />
-          ) : <Empty>Se guarda una foto diaria de tu cartera. En unos días verás aquí su evolución.</Empty>}
+          <div className="card-head"><h2>Exposición por divisa</h2><span className="small muted">valor en {cur}</span></div>
+          {exposure.length ? (
+            <>
+              <Donut items={exposure.map((e, i) => ({ label: e.currency, value: e.value, color: SERIES[i % SERIES.length] }))}
+                center={['Divisas', `${exposure.length}`]} format={(v) => money(v, cur)} />
+              {exposure.some((e) => e.currency !== cur) && (
+                <p className="small muted" style={{ marginBottom: 0 }}>
+                  {pct(1 - (exposure.find((e) => e.currency === cur)?.weight || 0), 0)} de tu patrimonio está en divisas distintas del {cur}: su valor en {cur} sube o baja con el tipo de cambio.
+                </p>
+              )}
+            </>
+          ) : <Empty>Sin datos</Empty>}
         </div>
       </div>
 
