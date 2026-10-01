@@ -6,12 +6,12 @@
 // Los ficheros de api/_lib no se exponen como endpoints en Vercel.
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36';
-const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
+export const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const CACHE_TTL = 60_000;
 const cache = new Map();
 
 // Subunidades que Yahoo usa en algunas bolsas (p. ej. Londres cotiza en peniques).
-const SUBUNITS = { GBp: ['GBP', 100], GBX: ['GBP', 100], ZAc: ['ZAR', 100], ILA: ['ILS', 100] };
+export const SUBUNITS = { GBp: ['GBP', 100], GBX: ['GBP', 100], ZAc: ['ZAR', 100], ILA: ['ILS', 100] };
 
 function cached(key) {
   const hit = cache.get(key);
@@ -19,7 +19,7 @@ function cached(key) {
   return undefined;
 }
 
-async function fetchJson(url, fetchImpl = fetch) {
+export async function fetchJson(url, fetchImpl = fetch) {
   const r = await fetchImpl(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();

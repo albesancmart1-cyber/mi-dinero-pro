@@ -40,10 +40,10 @@ test('próximos cargos y alertas de suscripciones', () => {
   assert.equal(monthlyEquivalent(rec[2]), 0.75);
 });
 
-test('presupuesto usa la plantilla si el mes no tiene uno propio', () => {
+test('presupuesto: un mes sin valor propio hereda el del mes anterior', () => {
   const state = {
     categories: [{ id: 'x', type: 'expense', name: 'Súper' }, { id: 'y', type: 'expense', name: 'Ocio' }],
-    budgetTemplate: { x: 300 },
+    budgetCats: ['x', 'y'],
     budgets: { '2026-08': { x: 100, y: 50 } },
     transactions: [
       { date: '2026-09-02', type: 'expense', amount: 120, categoryId: 'x' },
@@ -51,9 +51,9 @@ test('presupuesto usa la plantilla si el mes no tiene uno propio', () => {
       { date: '2026-09-03', type: 'income', amount: 1000, categoryId: 'z' },
     ],
   };
-  const s = budgetStatus(state, '2026-09');
-  assert.equal(s.totalLimit, 300);
-  assert.equal(s.totalSpent, 150);
-  assert.equal(s.rows.find((r) => r.category.id === 'y').limit, 0);
-  assert.equal(budgetStatus(state, '2026-08').totalLimit, 150);
+  const s9 = budgetStatus(state, '2026-09');
+  assert.equal(s9.totalLimit, 150);
+  assert.equal(s9.totalSpent, 150);
+  assert.equal(s9.rows.find((r) => r.category.id === 'y').limit, 50);
+  assert.equal(budgetStatus(state, '2026-07').totalLimit, 0); // antes del primer presupuesto
 });

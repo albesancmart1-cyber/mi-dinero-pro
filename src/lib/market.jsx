@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from './store.jsx';
-import { computePortfolio, isMarketPosition, neededCurrencies } from './portfolio.js';
+import { brokerValues, computePortfolio, isMarketPosition, neededCurrencies } from './portfolio.js';
 import { todayISO } from './finance.js';
 
 const CACHE_KEY = 'mi-dinero-pro:quotes';
@@ -85,6 +85,7 @@ export function MarketProvider({ children }) {
       value: Math.round(portfolio.totalValue * 100) / 100,
       invested: Math.round(portfolio.totalInvested * 100) / 100,
       netWorth: Math.round((portfolio.totalValue + cash) * 100) / 100,
+      brokers: brokerValues(portfolio),
     };
     if (last && last.date === date && Math.abs(last.value - snap.value) < 1 && last.netWorth === snap.netWorth) return;
     update((s) => ({

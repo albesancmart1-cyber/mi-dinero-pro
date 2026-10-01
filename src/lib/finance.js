@@ -3,6 +3,8 @@
 // Tipos de movimiento: 'income' (ingreso), 'expense' (gasto) e
 // 'investment' (aportación a inversión: sale de la cuenta pero no es un gasto).
 
+import { effectiveBudget } from './budget.js';
+
 export const TX_TYPES = ['income', 'expense', 'investment'];
 export const TYPE_LABELS = { income: 'Ingreso', expense: 'Gasto', investment: 'Inversión' };
 
@@ -166,9 +168,9 @@ export function monthTotals(transactions, month) {
   };
 }
 
-/** Presupuesto de un mes: el del mes si existe, si no la plantilla por defecto. */
+/** Presupuesto efectivo de un mes (valores propios o heredados de meses anteriores). */
 export function budgetFor(state, month) {
-  return state.budgets?.[month] || state.budgetTemplate || {};
+  return effectiveBudget(state, month);
 }
 
 /**

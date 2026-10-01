@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CATEGORIES_VERSION, defaultState, uid, upgradeCategories } from './defaults.js';
+import { migrateBudgets } from './budget.js';
 import { materializeRecurring, todayISO } from './finance.js';
 
 const KEY = 'mi-dinero-pro:v1';
@@ -14,16 +15,19 @@ function safeSet(k, v) {
 
 function migrate(s) {
   const d = defaultState();
-  return {
+  return migrateBudgets({
     ...d,
     ...s,
+    // La versión del presupuesto se toma del estado guardado (no del por defecto) para migrarlo
+    budgetVersion: s?.budgetVersion || 1,
+    budgetCats: s?.budgetCats || [],
     settings: { ...d.settings, ...(s?.settings || {}), rules: { ...(s?.settings?.rules || {}) } },
     // Al subir de versión se añaden las categorías nuevas (solo una vez, para respetar borrados)
     categories: s?.categories?.length
       ? ((s.categoriesVersion || 1) < CATEGORIES_VERSION ? upgradeCategories(s.categories) : s.categories)
       : d.categories,
     categoriesVersion: CATEGORIES_VERSION,
-  };
+  });
 }
 
 function load() {

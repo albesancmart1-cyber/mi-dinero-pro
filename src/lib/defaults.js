@@ -78,6 +78,8 @@ export function defaultState() {
     transactions: [],
     budgets: {},
     budgetTemplate: {},
+    budgetCats: [],
+    budgetVersion: 2,
     recurring: [],
     accounts: [],
     brokers: [{ id: 'b1', name: 'Broker1', currency: 'EUR' }],
